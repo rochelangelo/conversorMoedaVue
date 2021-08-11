@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CONVERSOR MOEDAS</title>
+    <style>
+        * {
+            box-sizing: border-box;
+
+        }
+
+        body {
+            font-family: calibri, sans-serif;
+        }
+
+        div#abas {
+            max-width: 40%;
+            padding: 30px;
+            border: transparent;
+            border-radius: 20px;
+            margin: 10px auto;
+            background-color: #A9A9A9;
+        }
+
+        div#abas nav a {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            border: 1px solid;
+            color: black;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px 5px 0 0;
+            margin-right: 10px;
+            top: 1px;
+        }
+
+        div#abas nav a.active {
+            border-bottom: none;
+            padding: 5px 10px 6px;
+        }
+
+        div#abas nav a#btc {
+            border-bottom: none;
+            padding: 5px 10px 6px;
+            background-color: #ef8e19;
+        }
+        div#abas nav a#dol {
+            border-bottom: none;
+            padding: 5px 10px 6px;
+            background-color: #4cb652;
+        }
+        div#abas nav a#eth {
+            border-bottom: none;
+            padding: 5px 10px 6px;
+            background-color: #5f7ae5;
+        }
+
+        div#abas>div {
+            border: 1px solid;
+            padding: 20px;
+        }
+
+        div#abas #titulo {
+            text-align: center;
+            border: none;
+        }
+
+        div#abas #form {
+            text-align: center;
+            margin: 25% 10%;
+        }
+
+        div#abas #btc {
+            background-color: #ef8e19;
+        }
+
+        div#abas #dol {
+            background-color: #4cb652;
+        }
+
+        div#abas #eth {
+            background-color: #5f7ae5;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="abas" >
+        <div id="titulo">
+            <h1>CONVERSOR MOEDAS</h1>
+            <h2>{{abas[aba].nome}}</h2>
+        </div>
+        <nav>
+            <a :href="'#aba'+id" :id="item.sigla" :class="aba==id?'active':''" v-for="item,id in abas">
+                <div v-html="item.icon"></div>
+            </a>
+        </nav>
+        <div class="conteudo" :id="abas[aba].sigla">
+            <div id="form">
+                <form>
+                    <div>
+                        <label>
+                            Valor em {{abas[aba].nome}}:<br>
+                            <input type="number" v-if="abas[aba].nome == 'Bitcoin'" v-on:input="converterBtcreal"
+                                min="0" name="valora" />
+                            <input type="number" v-if="abas[aba].nome == 'Dólar'" v-on:input="converterDolreal" min="0"
+                                name="valora" />
+                            <input type="number" v-if="abas[aba].nome == 'Ethereum'" v-on:input="converterEtherreal"
+                                min="0" name="valora" />
+                        </label>
+                    </div>
+                </form>
+                <form>
+                    <div>
+                        <label>
+                            Valor em real:<br><input type="number" v-bind:value="moedaB_value" min="0" disabled
+                                name="valorb" />
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script>
+        new Vue({
+            el: "#abas",
+            data: {
+                moedaA_value: 0,
+                moedaB_value: 0,
+                abas: [
+                    {
+                        icon: '<img src="bitcoin.png" style="width: 35px">',
+                        nome: 'Bitcoin',
+                        sigla: 'btc',
+                    },
+                    {
+                        icon: '<img src="moedas-de-dolar.png" style="width: 35px">',
+                        nome: 'Dólar',
+                        sigla: 'dol',
+                    },
+                    {
+                        icon: '<img src="ether.png" style="width: 35px">',
+                        nome: 'Ethereum',
+                        sigla: 'eth',
+                    },
+                ],
+                aba: 0,
+
+            },
+            methods: {
+                setAba() {
+                    this.aba = parseFloat('0' + location.hash.replace(/#aba/, ''))
+                },
+                converterBtcreal(e) {
+                    let url = "https://www.mercadobitcoin.net/api/BTC/ticker/"
+
+                    fetch(url).then(res => { return res.json() }).then(res => {
+                        let cotacao = res.ticker.low;
+                        this.moedaB_value = (cotacao * parseFloat(e.target.value)).toFixed(2);
+                    })
+                },
+                converterDolreal(e) {
+                    let url = "https://economia.awesomeapi.com.br/last/USD-BRL"
+
+                    fetch(url).then(res => { return res.json() }).then(res => {
+                        let cotacao = res.USDBRL.low;
+                        this.moedaB_value = (cotacao * parseFloat(e.target.value)).toFixed(2);
+                    })
+                },
+                converterEtherreal(e) {
+                    let url = "https://www.mercadobitcoin.net/api/ETH/ticker/"
+
+                    fetch(url).then(res => { return res.json() }).then(res => {
+                        let cotacao = res.ticker.low;
+                        this.moedaB_value = (cotacao * parseFloat(e.target.value)).toFixed(2);
+                    })
+                },
+            },
+            mounted() {
+                window.addEventListener('hashchange', () => {
+                    this.setAba()
+                })
+            },
+        })
+    </script>
+</body>
